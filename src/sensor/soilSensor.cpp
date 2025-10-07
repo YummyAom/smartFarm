@@ -4,7 +4,9 @@
 const float Vin = 3.3;
 const float Rref = 10000.0;
 const float PGA = 2.048;
+
 const float DIGI_RANGE = 32767.0;
+const float MIN_RAGE = 0.0;
 
 const float MAX_VOLTE = 3.3;
 const float MIN_VOLTE = 0.0;
@@ -25,18 +27,17 @@ int SOILSensor::getPWM(){
   float raw = ads.readADC_SingleEnded(channel);
 }
 
-float SOILSensor::getVolteLDR() {
+float SOILSensor::getVolte() {
   float raw = getPWM();
   float volte = (raw * (Vin / DIGI_RANGE) * 2) - 0.05;
   volte = constrain(volte, MIN_VOLTE, MAX_VOLTE);
   return volte;
 }
 
-float SOILSensor::getSoilMoisturePercent() {
-  float raw = getPWM();
-  float volte = (raw * (Vin / DIGI_RANGE) * 2) - 0.05;
-  volte = constrain(volte, MIN_VOLTE, MAX_VOLTE);
-  return volte;
+int SOILSensor::getSoilMoisturePercent() {
+  float pwm = getPWM();
+  float moisturePercent = (pwm - MIN_RAGE) / float(DIGI_RANGE - MIN_RAGE) * 100.0;
+  return (int)moisturePercent;
 }
 
 

@@ -3,7 +3,9 @@
 
 const int MAX_SOIL_MOISTURE = 100;
 const int MIN_SOIL_MOISTURE = 0;
+const int pumpMaxTime = 10000;
 
+int pumpTime = 0;
 PumpController::PumpController(int pin):
     relayPin(pin)
 {}
@@ -22,6 +24,10 @@ void PumpController::off(){
 }
 
 void PumpController::setSoilMoisture(int moisture, int target){
-    int error = target - moisture;
-    float nomalizedError = error / (MAX_SOIL_MOISTURE - MIN_SOIL_MOISTURE) * 255;
-}
+    // if(moisture < target && digitalRead(this->relayPin) == LOW){
+    //     on();
+    //     pumpTime = millis();
+    // // } if (digitalRead(relayPin) == HIGH && millis() - pumpStartTime > pumpMaxTime) {
+    //     off();
+    // }
+}  
