@@ -6,8 +6,8 @@ class PumpController
 public:
     PumpController(int pin);
     void begin();
-    void on();
-    void off();
+    void turnOn();
+    void turnOff();
     void setSoilMoisture(int moisture, int target);
 };
 #endif
