@@ -28,5 +28,5 @@ void DeviceManager::begin() {
 
 void DeviceManager::startDevice(SensorData &data, UserSettings &settings) {
     led.setBrightness(data.lux, settings.targetLux);
-    pump.setSoilMoisture(data.soilMoisture, settings.soilMoisture);
+    pump.setSoilMoisture(data.soilMoisture, settings.targetSoilMoisture);
 }
