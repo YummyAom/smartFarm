@@ -7,29 +7,25 @@
 #include "SensorManager.h"
 #include "./Data/SensorData.h"
 #include "./Data/UserSettings.h"
-
-// SensorManager sensor;
-
-// class DeviceManager {
-//   // FanController fan;
-//   // PumpController pump;
-//   LedController led;
-// public:
-//   DeviceManager();
-//   void begin();
-//   void startDevice(SensorData &data,UserSettings &settings);
-// };
+#include "./Data/DeviceData.h"
 
 class DeviceManager {
   FanController fan;
   PumpController pump;
   LedController led;
-  SensorManager &sensor;  
+  SensorManager &sensor;
+
+  bool ledState;
+  bool fanState;
+  bool pumpState;
+
 public:
+  DeviceState state; 
+
   DeviceManager(SensorManager &sm);
   void begin();
-  void startDevice(SensorData &data, UserSettings &settings);  // ใช้ SensorData
+  void startDevice(SensorData &data, UserSettings &settings);
+  DeviceState getState();  
 };
-
 
 #endif

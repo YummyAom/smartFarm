@@ -13,32 +13,33 @@ const int MAX_LUX = 3000;
 const int MIN_LUX = 0;
 
 LDRSensor::LDRSensor(uint8_t ch, Adafruit_ADS1115 &ads)
-  : channel(ch),
-    ads(ads)
-{}
-
-void LDRSensor::begin() {
-  if (!ads.begin()) {
-    Serial.println("Failed to initialize ads.");
-    while (1);
-  }
+    : channel(ch),
+      ads(ads)
+{
 }
 
-float LDRSensor::getVolteLDR() {
+// void LDRSensor::begin()
+// {
+//   if (!ads.begin())
+//   {
+//     Serial.println("Failed to initialize ads.");
+//     while (1)
+//       ;
+//   }
+// }
 
+float LDRSensor::getVolteLDR()
+{
   float raw = ads.readADC_SingleEnded(channel);
   float volte = (raw * (Vin / DIGI_RANGE) * 2) - 0.05;
   volte = constrain(volte, MIN_VOLTE, MAX_VOLTE);
-  Serial.print("volt LDR: ");Serial.println(volte);
   return volte;
-
 }
 
-int LDRSensor::claculateLux() {
-  
+int LDRSensor::claculateLux()
+{
   float volt_LDR = getVolteLDR();
-  int lux = 35.0 * pow(volt_LDR, -3);
-  Serial.print("lux: ");Serial.println(lux);
+  int lux = 20.0 * pow(volt_LDR, -3);
   lux = constrain(lux, MIN_LUX, MAX_LUX);
   return lux;
 }
