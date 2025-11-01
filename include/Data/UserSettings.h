@@ -5,8 +5,12 @@ struct UserSettings
 {
     float targetLux;
     float targetHumidity;
-    int taegetFanspeed;
+    int targetTemp;
     int targetSoilMoisture;
+
+    bool fanEnabled;
+    bool pumpEnabled;
+    bool ledEnabled;
 };
 
 #endif

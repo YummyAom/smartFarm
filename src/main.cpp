@@ -2,30 +2,42 @@
 #include "DeviceManager.h"
 #include "../include/Data/SensorData.h"
 #include "../include/Data/UserSettings.h"
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <ArduinoJson.h>
+#include "../include/MQTTManager.h"
+#include "../include/config.h"
+#include "../include/Data/DeviceData.h"
 
 SensorManager sensor;
 DeviceManager device(sensor);
 UserSettings settings;
 SensorData data;
+// DeviceState devState;
+MQTTManager mqtt;
 
-unsigned long previousMillis = 0;   
+unsigned long previousMillis = 0;
 const long interval = 2000;
 
-void setup() {
-  
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void setup()
+{
   Serial.begin(115200);
   sensor.begin();
-  settings.targetLux = 2000;
-  settings.targetSoilMoisture = 40;
+  mqtt.begin();
 }
 
-void loop() {
-
+void loop()
+{
   unsigned long currentMillis = millis();
-  
-  if (currentMillis - previousMillis >= interval) {
-  
+  mqtt.loop();
+
+  if (currentMillis - previousMillis >= interval)
+  {
     previousMillis = currentMillis;
+    mqtt.getMotorState(settings);
     data = sensor.readSensors();
     device.startDevice(data, settings);
   }

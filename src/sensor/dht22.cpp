@@ -13,7 +13,6 @@ float DHTSensor::getTemperature(){
     return dht.readTemperature();
 }
 
-
 void DHTSensor::readAndPrint(){
     float h = getHumidity();
     float t = getTemperature();

@@ -3,24 +3,17 @@
 
 class FanController {
 private:
-    int pwmPin;
+    int fanPin;
     float Kp, Ki, Kd;
+    float I_out, lastError;
     float integral;
     float prevError;
-
 public:
-    // constructor ใหม่: ใส่ค่า PID
     FanController(int pin, float kp, float ki, float kd);
-
     void begin();
-
-    // ใช้ float สำหรับ sensor 16-bit หรือ scaled value
-    int calculatePWM(float sensorValue, float setPoint);
-
-    void setSpeed(float sensorValue, float setPoint);
-
-    // ถ้าต้องการ reset PID
-    void resetPID();
+    void setSpeed(float currentTemp, float targetTemp);
+    void turnOff();
+    int calculatePWM(float currentTemp, float targetTemp);
 };
 
 #endif

@@ -1,38 +1,63 @@
 #include "../include/Device/FanController.h"
 #include <Arduino.h>
 
-FanController::FanController(int pin, float kp, float ki, float kd):
-    pwmPin(pin), Kp(kp), Ki(ki), Kd(kd), integral(0), prevError(0)
-{}
+const int MAXTEMP = 50;
+const int MINTEMP = 0;
 
-void FanController::begin(){
-    pinMode(pwmPin, OUTPUT);
+float prevTemp = 0;
+
+FanController::FanController(int pin, float kp, float ki, float kd)
+    : fanPin(pin), Kp(kp), Ki(ki), Kd(kd), I_out(0), lastError(0)
+{
 }
 
-// ใช้ float แทน int สำหรับ ADC 16-bit
-int FanController::calculatePWM(float sensorValue, float setPoint){
-    // แปลง sensorValue เป็น %RH หรือ scaled value ก่อนก็ได้
-    float error = setPoint - sensorValue;
-
-    // สะสม integral
-    integral += error;
-
-    // derivative
-    float derivative = error - prevError;
-
-    // PID output
-    float output = Kp * error + Ki * integral + Kd * derivative;
-
-    // บันทึก error ปัจจุบัน
-    prevError = error;
-
-    // clamp output 0-255 สำหรับ analogWrite
-    output = constrain(output, 0, 255);
-
-    return (int)output;
+void FanController::begin()
+{
+    pinMode(fanPin, OUTPUT);
+    analogWrite(fanPin, 0);
 }
 
-void FanController::setSpeed(float sensorValue, float setPoint){    
-    int duty = calculatePWM(sensorValue, setPoint);
-    analogWrite(pwmPin, duty);
+int FanController::calculatePWM(float currentTemp, float targetTemp)
+{
+    float error = currentTemp - targetTemp;
+    
+    float normalizedError = error / (MAXTEMP - MINTEMP) * 255.0;
+
+    // PID calculation
+    I_out += Ki * normalizedError;
+    I_out = constrain(I_out, 0, 255); // integral windup protection
+
+    float P_out = Kp * normalizedError;
+    float D_out = Kd * (normalizedError - lastError);
+    lastError = normalizedError;
+
+    int pwmOutput = P_out + I_out + D_out;
+    pwmOutput = constrain(pwmOutput, 0, 255);
+
+    Serial.print("P: ");
+    Serial.print(P_out);
+    Serial.print(" I: ");
+    Serial.print(I_out);
+    Serial.print(" D: ");
+    Serial.print(D_out);
+    Serial.print(" PWM: ");
+    Serial.println(pwmOutput);
+
+    return pwmOutput;
+}
+
+void FanController::setSpeed(float currentTemp, float targetTemp)
+{
+    int pwm = calculatePWM(currentTemp, targetTemp);
+    Serial.print("Current Temp: ");
+    Serial.print(currentTemp);
+    Serial.print("target Temp: ");
+    Serial.print(targetTemp);
+    analogWrite(fanPin, pwm);
+    prevTemp = pwm;
+}
+
+void FanController::turnOff()
+{
+    analogWrite(fanPin, 0);
 }
