@@ -25,6 +25,7 @@ private:
     PubSubClient client;
 
     bool motorState;
+    bool scanWiFi();
     void connectWiFi();
     void reconnectMQTT();
     static void callback(char *topic, byte *payload, unsigned int length);

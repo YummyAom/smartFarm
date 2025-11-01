@@ -9,6 +9,35 @@ UserSettings config;
 MQTTManager::MQTTManager() : client(espClient) {}
 
 // ------------------ WiFi ------------------
+bool MQTTManager::scanWiFi()
+{
+    Serial.println("\n🔍 Scanning for WiFi networks...");
+    WiFi.disconnect(true); // ตัดการเชื่อมต่อก่อนเพื่อให้ scan ได้ผลถูกต้อง
+    int n = WiFi.scanNetworks();
+    bool found = false;
+    if (n == 0)
+    {
+        Serial.println("❌ No networks found!");
+    }
+    else
+    {
+        Serial.printf("📡 Found %d networks:\n", n);
+        for (int i = 0; i < n; ++i)
+        {
+            String ssid = WiFi.SSID(i);
+            int32_t rssi = WiFi.RSSI(i);
+            Serial.printf("%2d: %-25s (Signal: %d dBm)\n", i + 1, ssid.c_str(), rssi);
+
+            if (ssid == WIFI_SSID)
+            {
+                found = true;
+                connectWiFi();
+            }
+        }
+    }
+    return found;
+}
+
 void MQTTManager::connectWiFi()
 {
     Serial.print("Connecting WiFi...");
@@ -20,7 +49,6 @@ void MQTTManager::connectWiFi()
     }
     Serial.println("\n✅ WiFi Connected!");
 }
-
 // ------------------ MQTT Connect ------------------
 void MQTTManager::reconnectMQTT()
 {
@@ -109,7 +137,9 @@ void MQTTManager::callback(char *topic, byte *payload, unsigned int length)
 // ------------------ Setup MQTT ------------------
 void MQTTManager::begin()
 {
-    connectWiFi();
+    while (!scanWiFi())
+    {
+    }
     client.setServer(MQTT_SERVER, MQTT_PORT);
     client.setCallback([this](char *topic, byte *payload, unsigned int length)
                        { this->callback(topic, payload, length); });
@@ -165,7 +195,6 @@ void MQTTManager::publishAllSensors(const SensorData &data)
     client.publish("sensors/record", json.c_str());
     Serial.println("📤 " + json);
 }
-
 
 // ------------------ Get Motor State ------------------
 void MQTTManager::getMotorState(UserSettings &state)
